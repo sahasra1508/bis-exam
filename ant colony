@@ -1,0 +1,76 @@
+Algorithm AntColonyOptimization(Cities, m, T, α, β, ρ, τ₀):
+
+// Step 1: Initialization
+for each edge (i, j) in Cities do
+    τ[i][j] ← τ₀
+    η[i][j] ← 1 / distance(i, j)
+end for
+
+BestTour ← ∅
+BestLength ← ∞
+
+// Step 2: Main loop
+for iter ← 1 to T do
+
+    for k ← 1 to m do
+        tour[k] ← ConstructTour(k, Cities, τ, η, α, β)
+        L[k] ← TourLength(tour[k])
+        if L[k] < BestLength then
+            BestTour ← tour[k]
+            BestLength ← L[k]
+        end if
+    end for
+
+    // Step 3: Pheromone evaporation
+    for each edge (i, j) in Cities do
+        τ[i][j] ← (1 - ρ) * τ[i][j]
+    end for
+
+    // Step 4: Pheromone update
+    for k ← 1 to m do
+        for each edge (i, j) in tour[k] do
+            τ[i][j] ← τ[i][j] + (1 / L[k])
+        end for
+    end for
+
+end for
+
+return BestTour, BestLength
+
+-----------------------------------------------------
+
+Function ConstructTour(k, Cities, τ, η, α, β):
+
+    start ← RandomCity(Cities)
+    current ← start
+    visited ← {start}
+    tour ← [start]
+
+    while visited ≠ Cities do
+        allowed ← Cities - visited
+        probabilities ← ∅
+
+        for each city j in allowed do
+            probabilities[j] ← (τ[current][j]^α) * (η[current][j]^β)
+        end for
+
+        // Normalize probabilities
+        probabilities ← probabilities / sum(probabilities)
+
+        next ← RouletteWheelSelect(probabilities)
+        tour.append(next)
+        visited.add(next)
+        current ← next
+    end while
+
+    tour.append(start) // return to origin
+    return tour
+
+-----------------------------------------------------
+
+Function TourLength(tour):
+    length ← 0
+    for i ← 1 to length(tour) - 1 do
+        length ← length + distance(tour[i], tour[i+1])
+    end for
+    return length
