@@ -1,0 +1,55 @@
+Algorithm ParallelCellularAlgorithm2D(N_rows, N_cols, T_max, bounds, λ, p_mut)
+
+    // Step 1: Initialize Problem
+    Define objective function f(x) and variable bounds
+
+    // Step 2: Initialize Parameters
+    Set number of rows N_rows, columns N_cols
+    Set maximum iterations T_max
+    Set diffusion coefficient λ
+    Set mutation probability p_mut
+
+    // Step 3: Initialize Population
+    for i ← 1 to N_rows do
+        for j ← 1 to N_cols do
+            Cell[i][j].x ← RandomSolutionWithinBounds(bounds)
+            Cell[i][j].fitness ← f(Cell[i][j].x)
+        end for
+    end for
+
+    // Step 4: Neighborhood Definition (Von Neumann)
+    Define neighborhood for each cell:
+        N(i,j) = { (i-1,j), (i+1,j), (i,j-1), (i,j+1) }
+
+    // Step 5: Iterative Optimization
+    for t ← 1 to T_max do
+        for each cell (i,j) in grid (in parallel) do
+            # Get neighbors
+            N(i,j) ← { (i-1,j), (i+1,j), (i,j-1), (i,j+1) }
+
+            # Find best neighbor
+            best ← argmin_{(p,q) ∈ N(i,j)} f(Cell[p][q].x)
+
+            # Update using diffusion model
+            if f(Cell[best].x) < f(Cell[i][j].x) then
+                x_new[i][j] ← Cell[i][j].x + λ * Σ_{(p,q) ∈ N(i,j)} w[p][q] * (Cell[p][q].x - Cell[i][j].x)
+            else
+                x_new[i][j] ← Cell[i][j].x
+            end if
+
+            # Mutation
+            if rand(0,1) < p_mut then
+                x_new[i][j] ← Mutate(x_new[i][j])
+            end if
+        end for
+
+        # Update all cell states and recompute fitness
+        for each cell (i,j) in grid do
+            Cell[i][j].x ← x_new[i][j]
+            Cell[i][j].fitness ← f(Cell[i][j].x)
+        end for
+    end for
+
+    // Step 6: Termination and Output
+    best_cell ← argmin_{i,j} f(Cell[i][j].x)
+    return best_cell.x, f(best_cell.x)
