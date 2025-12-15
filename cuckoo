@@ -1,0 +1,58 @@
+Algorithm CuckooSearch(n, p_a, T_max, α)
+   // Step 1: Initialize population
+    for i ← 1 to n do
+        x[i] ← RandomSolutionWithinBounds(bounds)
+        fitness[i] ← f(x[i])
+    end for
+
+    x_best ← x[argmin(fitness)]      // or argmax if maximizing
+    f_best ← f(x_best)
+
+    // Step 2: Main loop
+    for t ← 1 to T_max do
+
+        // Generate new solutions by Lévy flights
+        for i ← 1 to n do
+            step ← LévyFlight()
+            x_new ← x[i] + α * step
+            x_new ← ApplyBounds(x_new, bounds)
+            f_new ← f(x_new)
+
+            j ← RandomInteger(1, n)
+            if f_new better than fitness[j] then
+                x[j] ← x_new
+                fitness[j] ← f_new
+            end if
+        end for
+
+        // Abandon worst nests
+        Sort nests by fitness in ascending order
+        num_abandon ← floor(p_a * n)
+        for k ← n - num_abandon + 1 to n do
+            x[k] ← RandomSolutionWithinBounds(bounds)
+            fitness[k] ← f(x[k])
+        end for
+
+        // Update best nest
+        for i ← 1 to n do
+            if fitness[i] better than f_best then
+                x_best ← x[i]
+                f_best ← fitness[i]
+            end if
+        end for
+
+    end for
+
+    return x_best, f_best
+
+
+Function LévyFlight():
+    β ← 1.5
+    σ ←  |     Gamma(1+β) * sin(pi*β/2)    |^(1/β)
+         |---------------------------------|
+         |Gamma((1+β)/2) * β * 2^((β-1)/2))|
+          
+    u ← Normal(0, σ^2)
+    v ← Normal(0, 1)
+    step ← u / |v|^(1/β)
+    return step
