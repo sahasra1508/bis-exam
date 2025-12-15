@@ -1,0 +1,64 @@
+```jsx
+Algorithm GreyWolfOptimizer(N, T_max, bounds)
+    for i ← 1 to N do
+        x[i] ← RandomSolutionWithinBounds(bounds)
+        fitness[i] ← f(x[i])
+    end for
+
+    α ← best wolf with minimum fitness
+    β ← second best wolf
+    δ ← third best wolf
+
+    for t ← 1 to T_max do
+        a ← 2 - (2 * t / T_max)
+
+        for i ← 1 to N do
+            for d ← 1 to dimension do
+                r1 ← rand(0,1)
+                r2 ← rand(0,1)
+
+                A1 ← 2 * a * r1 - a
+                C1 ← 2 * r2
+                Dα ← |C1 * α[d] - x[i][d]|
+                X1 ← α[d] - A1 * Dα
+
+                r1 ← rand(0,1)
+                r2 ← rand(0,1)
+                A2 ← 2 * a * r1 - a
+                C2 ← 2 * r2
+                Dβ ← |C2 * β[d] - x[i][d]|
+                X2 ← β[d] - A2 * Dβ
+
+                r1 ← rand(0,1)
+                r2 ← rand(0,1)
+                A3 ← 2 * a * r1 - a
+                C3 ← 2 * r2
+                Dδ ← |C3 * δ[d] - x[i][d]|
+                X3 ← δ[d] - A3 * Dδ
+
+                x_new[d] ← (X1 + X2 + X3) / 3
+            end for
+
+            x[i] ← ApplyBounds(x_new, bounds)
+            fitness[i] ← f(x[i])
+        end for
+
+        Update α, β, δ based on new fitness values
+    end for
+
+    return α, f(α)
+
+Function RandomSolutionWithinBounds(bounds):
+    for d ← 1 to dimension do
+        sol[d] ← Uniform(bounds.lower[d], bounds.upper[d])
+    end for
+    return sol
+
+Function ApplyBounds(x, bounds):
+    for d ← 1 to dimension do
+        if x[d] < bounds.lower[d] then x[d] ← bounds.lower[d]
+        if x[d] > bounds.upper[d] then x[d] ← bounds.upper[d]
+    end for
+    return x
+
+```
