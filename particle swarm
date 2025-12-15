@@ -1,0 +1,54 @@
+Algorithm PSO(N, max_iter, d, minx, maxx, w, c1, c2, f):
+
+    // Step 1: Initialize swarm
+    for i ← 1 to N do
+        swarm[i].pos ← RandomPosition(minx, maxx, d)
+        swarm[i].vel ← RandomVelocity(minx, maxx, d)
+        swarm[i].bestPos ← swarm[i].pos
+        swarm[i].fitness ← f(swarm[i].pos)
+        swarm[i].bestFitness ← swarm[i].fitness
+    end for
+
+    G ← swarm[1].bestPos
+    Gfitness ← swarm[1].bestFitness
+    for i ← 2 to N do
+        if swarm[i].bestFitness < Gfitness then
+            G ← swarm[i].bestPos
+            Gfitness ← swarm[i].bestFitness
+        end if
+    end for
+
+    // Step 2: Iteration loop
+    for iteration ← 1 to max_iter do
+        for i ← 1 to N do
+
+            for dim ← 1 to d do
+                r1 ← Random(0, 1)
+                r2 ← Random(0, 1)
+
+                swarm[i].vel[dim] ← w * swarm[i].vel[dim] + c1 * r1 * (swarm[i].bestPos[dim] − swarm[i].pos[dim]) + c2 * r2 * (G[dim] − swarm[i].pos[dim])
+                swarm[i].pos[dim] ← swarm[i].pos[dim] + swarm[i].vel[dim]
+
+                if swarm[i].pos[dim] < minx then
+                    swarm[i].pos[dim] ← minx
+                else if swarm[i].pos[dim] > maxx then
+                    swarm[i].pos[dim] ← maxx
+                end if
+            end for
+
+            swarm[i].fitness ← f(swarm[i].pos)
+
+            if swarm[i].fitness < swarm[i].bestFitness then
+                swarm[i].bestPos ← swarm[i].pos
+                swarm[i].bestFitness ← swarm[i].fitness
+            end if
+
+            if swarm[i].bestFitness < Gfitness then
+                G ← swarm[i].bestPos
+                Gfitness ← swarm[i].bestFitness
+            end if
+
+        end for
+    end for
+
+    return G, Gfitness
