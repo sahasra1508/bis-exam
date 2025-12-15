@@ -1,0 +1,60 @@
+Algorithm GeneExpressionAlgorithm(n, G, g, Pc, Pm):
+
+// Step 1: Initialize population
+Population ← GenerateRandomPopulation(n, g)
+
+// Step 2: Evaluate initial population
+For each chromosome c in Population do
+    phenotype ← Express(c)
+    c.fitness ← FitnessFunction(phenotype)
+End for
+
+// Step 3: Evolution loop
+For t ← 1 to G do
+
+    NewPopulation ← ∅
+
+    // Generate new population
+    while size(NewPopulation) < n do
+
+        // Selection
+        Parent1 ← Select(Population)
+        Parent2 ← Select(Population)
+
+        // Crossover
+        if Random(0,1) < Pc then
+            Child1, Child2 ← Crossover(Parent1, Parent2)
+        else
+            Child1 ← Parent1
+            Child2 ← Parent2
+        end if
+
+        // Mutation
+        if Random(0,1) < Pm then
+            Child1 ← Mutate(Child1)
+        end if
+        if Random(0,1) < Pm then
+            Child2 ← Mutate(Child2)
+        end if
+
+        // Gene Expression
+        Phenotype1 ← Express(Child1)
+        Phenotype2 ← Express(Child2)
+
+        // Fitness Evaluation
+        Child1.fitness ← FitnessFunction(Phenotype1)
+        Child2.fitness ← FitnessFunction(Phenotype2)
+
+        // Add to new population
+        Add Child1 to NewPopulation
+        Add Child2 to NewPopulation
+
+    end while
+
+    // Replacement
+    Population ← NewPopulation
+
+end for
+
+// Return best solution
+return BestChromosome(Population)
